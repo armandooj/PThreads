@@ -87,7 +87,8 @@ void *behavior(void *arg) {
 	while(1) {
 		think(philosopher);
 		// Extra check for starvation - This is very unlikely to happen but it could happen so.
-		if (philosophers[RIGHT_PHILOSOPHER(philosopher->id)]->waiting_times < MAX_WAITING_TURNS) {
+		if (philosophers[RIGHT_PHILOSOPHER(philosopher->id)]->waiting_times < MAX_WAITING_TURNS ||
+			philosophers[LEFT_PHILOSOPHER(philosopher->id)]->waiting_times < MAX_WAITING_TURNS) {
 			take_chopsticks(philosopher);
 			eat(philosopher);
 			leave_chopsticks(philosopher);
