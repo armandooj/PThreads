@@ -1,34 +1,26 @@
-
-/*
-Extra - Generalization
-Drinking N_PHILOSOPHER
-
-M barmans
-N N_PHILOSOPHER
-
-They want coctails. Each drink may use many bottles (so barmans have to wait sometimes)
-*/
-
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "queue.h"
 
 #define N_PHILOSOPHERS 5
 #define N_BARMANS 3
 #define N_BOTTLES 3
+#define DRINKING_TIME 3
 
 typedef struct {
 	int id;
 	int waiting_times;
 	int status;
+	int barman_id;
 } Philosopher;
 
 typedef struct {
 	int id;
 	int waiting_times;
 	int status;
-	int current_philosopher;
+	int philosopher_id;
 	int drink;
 } Barman;
 
@@ -43,20 +35,50 @@ typedef enum {
 Philosopher *philosophers[N_PHILOSOPHERS];
 Barman *barmans[N_BARMANS];
 
+// Waiting line for philosophers
+Queue p_queue;
+
 // Conditions
 pthread_mutex_t p_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t p_cond[N_PHILOSOPHERS];
 pthread_cond_t b_cond[N_BARMANS];
 
 void prepare_drink(Barman *barman) {
-	sleep(2);
+	sleep((rand() % 5) + 2);
+
+	printf("Barman: %d prepared drink for %d\n", barman->id + 1, barman->philosopher_id + 1);
+	// Let know the philosopher the drink is done
+	pthread_cond_signal(&b_cond[barman->id]);
+
 	barman->status = FREE;
 	barman->drink = NONE;
-	//pthread_cond_signal(&b_cond[barman_id]);
+	
+	// Inform the first philosopher in the queue (if any)
+	int first_philosopher = pop(&p_queue);
+	if (first_philosopher != NONE) {
+		pthread_cond_signal(&p_cond[first_philosopher]);
+		printf(" and informed %d\n", first_philosopher + 1);
+	}
+}
+
+void drink(Philosopher *philosopher) {
+	printf("P: %d drinking\n", philosopher->id + 1);
+	sleep(DRINKING_TIME);
+	philosopher->waiting_times = 0;
+	philosopher->barman_id = NONE;
+}
+
+void request_drink(Barman *barman, int drink) {
+	pthread_mutex_lock(&p_mutex); /// ?????? 
+	barman->drink = drink;
+	printf("P: %d requesting drink\n", barman->philosopher_id + 1);
+	// And wait until it's ready
+	pthread_cond_wait(&b_cond[barman->id], &p_mutex);
+	pthread_mutex_unlock(&p_mutex);
 }
 
 // Request a barman or wait for one in a queue
-void get_barman(Philosopher *philosopher, int drink) {
+void get_barman(Philosopher *philosopher) {
 	pthread_mutex_lock(&p_mutex);
 	int barman_id = NONE;
 
@@ -65,23 +87,23 @@ void get_barman(Philosopher *philosopher, int drink) {
 		for (i = 0; i < N_BARMANS; i++) {
 			// A barman is available
 			if (barmans[i]->status == FREE) {
+				philosopher->barman_id = barmans[i]->id;
 				barmans[i]->status = WORKING;
-				barmans[i]->current_philosopher = i;
+				barmans[i]->philosopher_id = i;
 				barman_id = i;
 				i = N_BARMANS;
 			}
 		}
 
 		if (barman_id == NONE) {
-			// If we get here it means no barman is available - Join the waiting queue
-			philosopher->waiting_times++;
+			// If we get here it means no barman is available
+			philosopher->waiting_times++;			
+			// Insert the philosopher in the waiting queue
+			push(&p_queue, philosopher->id);
+			// Wait..
 			printf("P: %d waiting - Total: %d\n", philosopher->id + 1, philosopher->waiting_times);
-			// TODO Join queue
 			pthread_cond_wait(&p_cond[philosopher->id], &p_mutex);
-		} else {
-			// Found a barman, request a drink and wait for it
-			barmans[barman_id]->drink = drink;
-			pthread_cond_wait(&b_cond[barman_id], &p_mutex);
+			printf("Woke up: %d\n", philosopher->id + 1);
 		}
 	}
 
@@ -91,8 +113,8 @@ void get_barman(Philosopher *philosopher, int drink) {
 void think(Philosopher *philosopher) {
 	// Think for a random interval
 	int thinking_time = (rand() % 5) + 3;
-	sleep(thinking_time);
 	printf("P: %d thinking for %d seconds.\n", philosopher->id + 1, thinking_time);
+	sleep(thinking_time);	
 }
 
 // What a philosopher does
@@ -101,10 +123,11 @@ void *behavior_philosopher(void *arg) {
 	srand(philosopher->id);
 		
 	while (1) {
-		//think(philosopher);
-		int drink = 1;
-		get_barman(philosopher, drink);
-		// request_drink(philosopher, drink);
+		think(philosopher);
+		int drink_type = 1;
+		get_barman(philosopher);
+		request_drink(barmans[philosopher->barman_id], drink_type);
+		drink(philosopher);
 	}
 
 	return (void *) 0;
@@ -115,7 +138,7 @@ void *behavior_barman(void *arg) {
 	Barman *barman = (Barman *)arg;
 	while (1) {
 		if (barman->status == WORKING && barman->drink != NONE) {
-			//prepare_drink(barman);
+			prepare_drink(barman);
 		}
 	}
 
@@ -131,6 +154,7 @@ int main() {
 	int i;
 
 	// Initialize stuff
+	p_queue = createQueue();
 
 	for (i = 0; i < N_BARMANS; i++) {
 		pthread_cond_init(&b_cond[i], NULL);
@@ -147,7 +171,7 @@ int main() {
 		sticks[i] = FREE;
 		pthread_cond_init(&cond[i], NULL);
 	}
-	*/
+	*/	
 
 	for (i = 0; i < N_PHILOSOPHERS; i++) {
 		pthread_cond_init(&p_cond[i], NULL);		

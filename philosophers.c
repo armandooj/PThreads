@@ -35,8 +35,8 @@ void print_status() {
 void think(Philosopher *philosopher) {
 	// Think for a random interval
 	int thinking_time = (rand() % 5) + 3;
-	sleep(thinking_time);
 	printf("P: %d thinking for %d seconds.\n", philosopher->id + 1, thinking_time);
+	sleep(thinking_time);	
 }
 
 void take_chopsticks(Philosopher *philosopher) {
@@ -88,7 +88,7 @@ void *behavior(void *arg) {
 		think(philosopher);
 		// Extra check for starvation - This is very unlikely to happen but it could happen so.
 		if (philosophers[RIGHT_PHILOSOPHER(philosopher->id)]->waiting_times < MAX_WAITING_TURNS ||
-			philosophers[LEFT_PHILOSOPHER(philosopher->id)]->waiting_times < MAX_WAITING_TURNS) {
+			philosophers[RIGHT_PHILOSOPHER(philosopher->id)]->waiting_times < MAX_WAITING_TURNS) {
 			take_chopsticks(philosopher);
 			eat(philosopher);
 			leave_chopsticks(philosopher);
