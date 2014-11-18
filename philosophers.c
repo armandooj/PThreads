@@ -101,17 +101,15 @@ int main() {
 
 	pthread_t *tids;
 	tids = malloc(N_PHILOSOPHERS * sizeof(pthread_t));	
-	
-	int philosopher_ids[N_PHILOSOPHERS];
-	int i;
+		
 	// Initialize stuff
+	int i;
 	for (i = 0; i < N_PHILOSOPHERS; i++) {
 		sticks[i] = FREE;
 		pthread_cond_init(&cond[i], NULL);
 	}
 
 	for (i = 0; i < N_PHILOSOPHERS; i++) {
-		philosopher_ids[i] = i;
 		philosophers[i] = (Philosopher *) malloc(sizeof(Philosopher));
 		philosophers[i]->id = i;
 		philosophers[i]->waiting_times = 0;
