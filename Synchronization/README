@@ -1,0 +1,105 @@
+__________________________________________________
+linked_list.c .h: 
+
+Basic liked list module. 
+Provides insertion, searching and removing primitives. 
+
+**You don't need to modify theses two files
+
+__________________________________________________
+reader_writer_0.c reader_writer.h : 
+
+Reader writer synchronization module.  This
+module contains empty definition of primitives begin_read etc.
+It only includes call to tracing_record_event(begin_read) etc.
+
+**You do not need to modify theses files, but you must implement
+  reader_writer_1.c (assignment sheet part1), reader_writer_2.c
+  (part2) and reader_writer_3.c (part3).  
+
+  Warning ! For each new reader_writer implementation, you need to
+  update the Makefile (see Makefile section)
+  
+
+__________________________________________________
+Makefile
+
+The Makefile will automatically compile all your *_test.c files.
+
+For each new reader_writer_X.c that you write, you must uncomment the
+corresponding lines in the Makefile.
+
+Each file in *_test.c is compiled and linked with the archive source
+files into a *_test_X binary file. X beeing the number in
+reader_writer_X.c 
+
+If there are more than one reader_writer_X.c, it will
+build several test binary files for a single test source file.
+
+eg. if you have
+x_test.c
+y_test.c
+reader_writer_0.c 
+reader_writer_1.c
+
+it will build the following binary files : 
+x_1
+x_2
+y_1
+y_2
+
+__________________________________________________
+reader_writer_tracing.c .h : 
+
+This module includes tracing primitives that may be useful to run some
+tests.  Events can be recorded with the tracing_record_event()
+function.  All recorded events can be print further with
+print_all_events_time().  See reader_writer_tracing.h file for
+additional documentation.
+
+Four events are declared in reader_writer.h for BEGIN_READ, END_READ,
+BEGIN_WRITE and END_WRITE. They are mandatory for the assignment.
+Fell free to add new events.
+
+**You may modify theses two files. If you do, it **must** stay
+backward compatible with the provided files
+
+__________________________________________________
+linked_list_simple_test.c : 
+
+Basic linked_list test.  Creates n threads. Each thread inserts random
+integers in a global linked list (ie. elements inserted by one thread
+are visible to all other threads). 
+
+After each insertion, threads also search in the list for an integer
+value equal to their identifier. If a thread finds a value equal to
+its identifier in the list, it returns (ie. thread terminates). It
+also returns if it does not find any integer equal to its identifier
+after inserting 10 random integers. 
+
+The test set up an alarm signal so that the execution is terminated in
+case of a  deadlock.
+
+If no illegal access nor deadlock occures, the test exits returning
+EXIT_SUCCESS.
+
+**You don't need to modify theses two files**
+However you may use them as a template for your other tests.
+
+__________________________________________________
+*_test.c 
+
+WARNING ! you *MUST* complete the following requirements
+
+1. All tests programs must be named *_test.c 
+
+2. All tests must return EXIT_SUCCESS in case of success, anything
+else in case of failure (eg. EXIT_FAILURE).  EXIT_SUCCESS and
+EXIT_FAILURE are defined in stdlib.h
+
+3. All reader_writer_X.c files must include correct calls to
+tracing_record_event(X). X beeing events in {BR_EVENT_ID, ER_EVENT_ID,
+BW_EVENT_ID, EW_EVENT_ID} (defined in reader_writer.h).
+
+4. All *_test.c files must include a call to
+print_all_events_per_threads() right before exiting.
