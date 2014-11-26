@@ -11,7 +11,8 @@
 
 typedef struct{
   struct timeval time; /* time stamp (see man gettimeofday)*/
-  int type; 
+  int type;
+  int value;
 }event_s, *event_t; 
 
 typedef struct{
@@ -59,6 +60,13 @@ void tracing_register_event(tracing_t tracing, int event_id, char *event_name);
    recorded for the current thread reaches MAX_EVENTS_PER_THREADS
  */
 void tracing_record_event(tracing_t tracing, int event_type); 
+
+/* Records a new event in the event list.
+   
+   \warning This function will call abort() if the number of events
+   recorded for the current thread reaches MAX_EVENTS_PER_THREADS
+ */
+void tracing_record_event_with_value(tracing_t tracing, int event_type, int value);
 
 /* return 1, if e1 precedes e2, 0 if they occures simultaneously -1 if
    e2 precedes e1 */

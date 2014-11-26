@@ -13,13 +13,13 @@ typedef struct reader_writer *reader_writer_t;
 
 reader_writer_t rw_init(); 
 
-void begin_read(reader_writer_t rw);
+void begin_read(reader_writer_t rw, int value);
 
-void end_read(reader_writer_t rw); 
+void end_read(reader_writer_t rw, int value); 
 
-void begin_write(reader_writer_t rw); 
+void begin_write(reader_writer_t rw, int value); 
 
-void end_write(reader_writer_t rw); 
+void end_write(reader_writer_t rw, int value); 
 
 
 #endif 	    /* !_READER_WRITER_H_ */

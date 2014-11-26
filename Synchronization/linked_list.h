@@ -21,4 +21,6 @@ void list_insert(struct linked_list_head *list, int val);
 
 int list_exists(struct linked_list_head *list, int val);
 
+void print_list_contents(struct linked_list_head *list);
+
 #endif 	    /* !_LINKED_LIST_H_ */

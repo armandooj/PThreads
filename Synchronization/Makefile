@@ -13,7 +13,7 @@ TEST_SRC=$(wildcard *_test.c)
 TEST_BIN+=$(TEST_SRC:.c=_0)
 
 #Uncomment when you wrote reader_writer_1.c (part 1)
-#TEST_BIN+=$(TEST_SRC:.c=_1)
+TEST_BIN+=$(TEST_SRC:.c=_1)
 
 #Uncomment when you wrote reader_writer_2.c (part 2)
 #TEST_BIN+=$(TEST_SRC:.c=_2)

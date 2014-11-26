@@ -22,7 +22,8 @@ void *thread_func(void *a){
   tracing_register_thread(t, id); 
   int i ;
   for(i = 0; i < 10; i++){
-    list_insert(&list, rand()%10); 
+    list_insert(&list, rand()%10);
+
     if(list_exists(&list, id)){
       printf("Thread nmbr %d, won.\n", id); 
       return NULL; 
@@ -74,6 +75,8 @@ int main(int argc, char **argv){
   for(i = 0; i < nb_threads-1; i++){
     pthread_join(tids[i], NULL); 
   }
+
+  print_list_contents(&list);
 
   print_all_events_per_date(t); 
 

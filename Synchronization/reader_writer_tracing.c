@@ -73,6 +73,23 @@ threads, change MAX_EVENTS_PER_THREADS. Aborting.\n");
   gettimeofday(&new_event->time, NULL); /* get current time */
   /* store event type */
   new_event->type = event_type; 
+  new_event->value = -1;
+}
+
+void tracing_record_event_with_value(tracing_t tracing, int event_type, int value) {
+  int thread_id = tracing_get_thread_id(tracing);
+  if(tracing->events_last_idx[thread_id] >= MAX_EVENTS_PER_THREADS-1){
+  fprintf(stderr, "TRACING ERROR : Number of events have reached its maximum value per\
+threads, change MAX_EVENTS_PER_THREADS. Aborting.\n");
+  }
+    
+  event_t new_event = &tracing->events[thread_id][tracing->events_last_idx[thread_id]++];
+
+  /* store event time */ 
+  gettimeofday(&new_event->time, NULL); /* get current time */
+  /* store event type */
+  new_event->type = event_type; 
+  new_event->value = value;
 }
 
 static char *tv_to_string(struct timeval *tv, char *buf, int buf_size){
@@ -167,12 +184,20 @@ void print_all_events_per_date(tracing_t tracing){
       char buf[64]; 
       /* computes time relatives to call to tracing_init() call */
       struct timeval tv = 
-	tv_minus(min, tracing->initial_time); 
+	    tv_minus(min, tracing->initial_time); 
     
-      printf("THREAD %d TIME: +%s, TYPE : ", 
-	     min_idx, tv_to_string(&tv, buf, 64));
-      printf("%s\n", tracing_event_to_string(tracing, tracing->events[min_idx][current_idx[min_idx]].type, buf, 64));
-      current_idx[min_idx]++; 
+      if (tracing->events[min_idx][current_idx[min_idx]].value) {
+        printf("THREAD %d TIME: +%s, VALUE : %d, TYPE : ", 
+        min_idx, tv_to_string(&tv, buf, 64), tracing->events[min_idx][current_idx[min_idx]].value);
+        printf("%s\n", tracing_event_to_string(tracing, tracing->events[min_idx][current_idx[min_idx]].type, buf, 64));
+        current_idx[min_idx]++; 
+      } else {
+        printf("THREAD %d TIME: +%s, TYPE : ", 
+        min_idx, tv_to_string(&tv, buf, 64));
+        printf("%s\n", tracing_event_to_string(tracing, tracing->events[min_idx][current_idx[min_idx]].type, buf, 64));
+        current_idx[min_idx]++; 
+      }
+
     }
     else{
       break; 
