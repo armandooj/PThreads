@@ -19,7 +19,7 @@ reader_writer_t rw_init(){
 
 void begin_read(reader_writer_t rw, int value){
   /* ... */
-  tracing_record_event(t, BR_EVENT_ID);
+  tracing_record_event(t, BR_EVENT_ID);  
 
   /* ... */
 }
@@ -33,14 +33,14 @@ void end_read(reader_writer_t rw, int value){
 
 void begin_write(reader_writer_t rw, int value){
   /* ... */
-  tracing_record_event(t, BW_EVENT_ID);  
+  tracing_record_event_with_value(t, BW_EVENT_ID, value);  
 
   /* ... */
 }
 
 void end_write(reader_writer_t rw, int value){
   /* ... */
-  tracing_record_event(t, EW_EVENT_ID);  
+  tracing_record_event_with_value(t, EW_EVENT_ID, value);  
 
   /* ... */
 }

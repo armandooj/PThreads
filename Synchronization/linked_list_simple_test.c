@@ -77,8 +77,21 @@ int main(int argc, char **argv){
   }
 
   print_list_contents(&list);
-
+  printf("\n");
   print_all_events_per_date(t); 
+
+  if (check_call_consistency(t)) {
+    printf("It's consistent.\n");
+  } else {
+    printf("It's not consistent.\n");
+  }
+
+  if (check_call_concurrency(t)) {
+    printf("It's concurrent.\n");
+  } else {
+    printf("It's not concurrent.\n");
+  }
+  
 
   exit(EXIT_SUCCESS); 
 }

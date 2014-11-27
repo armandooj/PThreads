@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
+#include "reader_writer.h"
 #include "reader_writer_tracing.h"
 
 
@@ -168,15 +169,15 @@ void print_all_events_per_date(tracing_t tracing){
   int min_idx; 
 
   for(;;){
-  min.tv_sec = LONG_MAX; min.tv_usec = 0;
-  min_idx = -1; 
+    min.tv_sec = LONG_MAX; min.tv_usec = 0;
+    min_idx = -1; 
     for(i = 0; i < tracing->nb_threads; i++){
       if(current_idx[i] < tracing->events_last_idx[i]){
-	struct timeval current = tracing->events[i][current_idx[i]].time; 
-	if(tv_lt(current, min)){
-	  min = current; 
-	  min_idx = i; 
-	}
+    	 struct timeval current = tracing->events[i][current_idx[i]].time; 
+      	if(tv_lt(current, min)){
+      	  min = current; 
+      	  min_idx = i; 
+      	}
       }
     }
 
@@ -186,7 +187,7 @@ void print_all_events_per_date(tracing_t tracing){
       struct timeval tv = 
 	    tv_minus(min, tracing->initial_time); 
     
-      if (tracing->events[min_idx][current_idx[min_idx]].value) {
+      if (tracing->events[min_idx][current_idx[min_idx]].value >= 0) {
         printf("THREAD %d TIME: +%s, VALUE : %d, TYPE : ", 
         min_idx, tv_to_string(&tv, buf, 64), tracing->events[min_idx][current_idx[min_idx]].value);
         printf("%s\n", tracing_event_to_string(tracing, tracing->events[min_idx][current_idx[min_idx]].type, buf, 64));
@@ -203,5 +204,120 @@ void print_all_events_per_date(tracing_t tracing){
       break; 
     }
   }
+}
+
+int check_call_consistency(tracing_t tracing)
+{
+  int i;   
+
+  int *current_idx = calloc(tracing->nb_threads, sizeof(int)); 
+
+  struct timeval min; 
+  int min_idx; 
+
+  int write_count=0;
+  int read_count=0;
+  for(;;){
+    min.tv_sec = LONG_MAX; min.tv_usec = 0;
+    min_idx = -1; 
+    for(i = 0; i < tracing->nb_threads; i++){
+      if(current_idx[i] < tracing->events_last_idx[i]){
+        struct timeval current = tracing->events[i][current_idx[i]].time; 
+        if(tv_lt(current, min)){
+          min = current; 
+          min_idx = i; 
+        }
+      }
+    }
+
+    if(min_idx != -1){
+      //event id
+      int event_id= tracing->events[min_idx][current_idx[min_idx]].type;
+      //maintain counters, do checks based on their values
+      switch (event_id) {
+        case BW_EVENT_ID:
+          if (read_count>0 || write_count>0)
+          {
+            return 0;
+          }
+          write_count++;
+          break;
+        case BR_EVENT_ID:
+          if (write_count>0)
+          {
+            return 0;
+          }
+          read_count++;
+          break;
+        case ER_EVENT_ID:
+          read_count--;
+          break;
+        case EW_EVENT_ID:
+          write_count--;
+          break;
+        default:
+          break;
+      }
+      current_idx[min_idx]++; 
+    }
+    else{
+      break; 
+    }
+  }
+  return 1;
+}
+
+int check_call_concurrency(tracing_t tracing)
+{
+  int i;   
+
+  int *current_idx = calloc(tracing->nb_threads, sizeof(int)); 
+
+  struct timeval min; 
+  int min_idx; 
+
+  int read_count=0;
+  for(;;){
+    min.tv_sec = LONG_MAX; min.tv_usec = 0;
+    min_idx = -1; 
+    for(i = 0; i < tracing->nb_threads; i++){
+      if(current_idx[i] < tracing->events_last_idx[i]){
+        struct timeval current = tracing->events[i][current_idx[i]].time; 
+        if(tv_lt(current, min)){
+          min = current; 
+          min_idx = i; 
+        }
+      }
+    }
+
+    if(min_idx != -1){
+      //event id
+      int event_id= tracing->events[min_idx][current_idx[min_idx]].type;
+      //maintain counters, do checks based on their values
+      switch (event_id) {
+        case BW_EVENT_ID:
+          break;
+        case BR_EVENT_ID:
+          read_count++;
+          if (read_count>1)
+          {
+            return 1;
+          }
+          break;
+        case ER_EVENT_ID:
+          read_count--;
+          break;
+        case EW_EVENT_ID:
+          break;
+        default:
+          break;
+      }
+      current_idx[min_idx]++; 
+    }
+    else{
+      break; 
+    }
+  }
+  return 0;
 }
 
