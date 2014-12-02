@@ -78,7 +78,7 @@ void print_all_events_per_date(tracing_t tracing);
 /* Prints all recorded events sorted by thread id */ 
 void print_all_events_per_thread(tracing_t tracing); 
 
-
+/* Tests */
 int check_call_consistency(tracing_t tracing);
 int check_call_concurrency(tracing_t tracing);
 

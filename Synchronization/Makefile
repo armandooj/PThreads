@@ -16,10 +16,10 @@ TEST_BIN+=$(TEST_SRC:.c=_0)
 TEST_BIN+=$(TEST_SRC:.c=_1)
 
 #Uncomment when you wrote reader_writer_2.c (part 2)
-#TEST_BIN+=$(TEST_SRC:.c=_2)
+TEST_BIN+=$(TEST_SRC:.c=_2)
 
 #Uncomment when you wrote reader_writer_3.c (part 3)
-#TEST_BIN+=$(TEST_SRC:.c=_3)
+TEST_BIN+=$(TEST_SRC:.c=_3)
 
 build_all_tests:$(TEST_BIN)
 

@@ -206,8 +206,7 @@ void print_all_events_per_date(tracing_t tracing){
   }
 }
 
-int check_call_consistency(tracing_t tracing)
-{
+int check_call_consistency(tracing_t tracing) {
   int i;   
 
   int *current_idx = calloc(tracing->nb_threads, sizeof(int)); 
@@ -236,15 +235,13 @@ int check_call_consistency(tracing_t tracing)
       //maintain counters, do checks based on their values
       switch (event_id) {
         case BW_EVENT_ID:
-          if (read_count>0 || write_count>0)
-          {
+          if (read_count > 0 || write_count > 0) {
             return 0;
           }
           write_count++;
           break;
         case BR_EVENT_ID:
-          if (write_count>0)
-          {
+          if (write_count > 0) {
             return 0;
           }
           read_count++;
@@ -260,15 +257,14 @@ int check_call_consistency(tracing_t tracing)
       }
       current_idx[min_idx]++; 
     }
-    else{
+    else {
       break; 
     }
   }
   return 1;
 }
 
-int check_call_concurrency(tracing_t tracing)
-{
+int check_call_concurrency(tracing_t tracing) {
   int i;   
 
   int *current_idx = calloc(tracing->nb_threads, sizeof(int)); 
@@ -291,16 +287,13 @@ int check_call_concurrency(tracing_t tracing)
     }
 
     if(min_idx != -1){
-      //event id
       int event_id= tracing->events[min_idx][current_idx[min_idx]].type;
-      //maintain counters, do checks based on their values
       switch (event_id) {
         case BW_EVENT_ID:
           break;
         case BR_EVENT_ID:
           read_count++;
-          if (read_count>1)
-          {
+          if (read_count > 1) {
             return 1;
           }
           break;
@@ -314,7 +307,7 @@ int check_call_concurrency(tracing_t tracing)
       }
       current_idx[min_idx]++; 
     }
-    else{
+    else {
       break; 
     }
   }

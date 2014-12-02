@@ -26,7 +26,7 @@ void *thread_func(void *a){
 
     if(list_exists(&list, id)){
       printf("Thread nmbr %d, won.\n", id); 
-      return NULL; 
+      return NULL;
     }
   }
   return NULL;
@@ -61,6 +61,8 @@ int main(int argc, char **argv){
   tracing_register_event(t, ER_EVENT_ID, "END READ");
   tracing_register_event(t, BW_EVENT_ID, "BEGIN WRITE");
   tracing_register_event(t, EW_EVENT_ID, "END WRITE");
+  tracing_register_event(t, WR_EVENT_ID, "WAITS TO READ");
+  tracing_register_event(t, WW_EVENT_ID, "WAITS TO WRITE");
 
   /*** Thread creation ***/
   pthread_t *tids = malloc(sizeof(pthread_t) * nb_threads -1); 
@@ -92,6 +94,5 @@ int main(int argc, char **argv){
     printf("It's not concurrent.\n");
   }
   
-
   exit(EXIT_SUCCESS); 
 }

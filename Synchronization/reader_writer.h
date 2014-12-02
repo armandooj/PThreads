@@ -5,6 +5,8 @@
 #define ER_EVENT_ID 1
 #define BW_EVENT_ID 2
 #define EW_EVENT_ID 3
+#define WR_EVENT_ID 4
+#define WW_EVENT_ID 5
 
 /* The structure is now defined inside reader_writer_X.c so the same
    header can be used for any of your implementation and included
